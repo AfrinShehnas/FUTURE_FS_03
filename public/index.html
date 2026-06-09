@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Grocery Store</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<script>
+
+let user = localStorage.getItem("user");
+
+if(!user){
+  window.location.href = "login.html";
+}
+
+</script>
+
+<body onload="loadProducts()">
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+  <div class="logo">
+    🛒 Grocery Store
+  </div>
+
+  <div class="nav-links">
+
+    <a href="index.html">Home</a>
+
+    <a href="about.html">About</a>
+
+    <a href="contact.html">Contact</a>
+
+    <button onclick="logout()">
+      Logout
+    </button>
+
+  </div>
+
+</div>
+
+<!-- HERO SECTION -->
+<div class="hero">
+
+  <h1>Fresh Grocery Delivered Daily</h1>
+
+  <p>
+    Fruits, Vegetables, Rice, Pulses,
+    Oils and More
+  </p>
+
+</div>
+
+<!-- SEARCH -->
+<div class="search-box">
+
+  <input
+    type="text"
+    id="search"
+    placeholder="Search Products..."
+    onkeyup="filterProducts()"
+  >
+
+</div>
+
+<!-- CATEGORY FILTER -->
+
+<div class="categories">
+
+<button onclick="setCategory('')">
+All
+</button>
+
+<button onclick="setCategory('fruits')">
+Fruits
+</button>
+
+<button onclick="setCategory('vegetables')">
+Vegetables
+</button>
+
+<button onclick="setCategory('grains')">
+Grains
+</button>
+
+<button onclick="setCategory('pulses')">
+Pulses
+</button>
+
+<button onclick="setCategory('essentials')">
+Essentials
+</button>
+
+</div>
+
+<!-- PRODUCTS -->
+
+<div
+class="products"
+id="products"
+>
+
+</div>
+
+<!-- CART BUTTON -->
+
+<div class="cart-btn">
+
+<a href="cart.html">
+
+<button>
+🛒 View Cart
+</button>
+
+</a>
+
+</div>
+
+<script>
+
+let allProducts = [];
+
+let selectedCategory = "";
+
+// LOAD PRODUCTS
+
+async function loadProducts(){
+
+  let res =
+    await fetch("/products");
+
+  allProducts =
+    await res.json();
+
+  renderProducts(allProducts);
+
+}
+
+// RENDER PRODUCTS
+
+function renderProducts(products){
+
+  let container =
+    document.getElementById("products");
+
+  container.innerHTML = "";
+
+  products.forEach(p=>{
+
+    let stock =
+      Number(p.available) === 1;
+
+    container.innerHTML += `
+
+    <div class="card">
+
+      <img
+      src="${p.image}"
+      >
+
+      <h3>
+      ${p.name}
+      </h3>
+
+      <p>
+      ₹${p.price}
+      </p>
+
+      ${
+      stock
+      ?
+      "<p class='in'>✅ In Stock</p>"
+      :
+      "<p class='out'>❌ Out Of Stock</p>"
+      }
+
+      <input
+      type="number"
+      value="1"
+      min="1"
+      id="qty-${p.id}"
+      ${!stock ? "disabled" : ""}
+      >
+
+      <button
+      onclick="addToCart(
+      ${p.id},
+      '${p.name}',
+      ${p.price}
+      )"
+      ${!stock ? "disabled" : ""}
+      >
+
+      Add To Cart
+
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+// CATEGORY
+
+function setCategory(category){
+
+selectedCategory = category;
+
+filterProducts();
+
+}
+
+// FILTER
+
+function filterProducts(){
+
+let search =
+document
+.getElementById("search")
+.value
+.toLowerCase();
+
+let filtered =
+allProducts.filter(p=>{
+
+let searchMatch =
+p.name
+.toLowerCase()
+.includes(search);
+
+let categoryMatch =
+selectedCategory === "" ||
+p.category === selectedCategory;
+
+return (
+searchMatch &&
+categoryMatch
+);
+
+});
+
+renderProducts(filtered);
+
+}
+
+// ADD TO CART
+
+function addToCart(
+id,
+name,
+price
+){
+
+let qty =
+parseInt(
+document.getElementById(
+`qty-${id}`
+).value
+);
+
+let cart =
+JSON.parse(
+localStorage.getItem("cart")
+) || [];
+
+let existing =
+cart.find(
+item => item.id === id
+);
+
+if(existing){
+
+existing.qty += qty;
+
+}else{
+
+cart.push({
+id,
+name,
+price,
+qty
+});
+
+}
+
+localStorage.setItem(
+"cart",
+JSON.stringify(cart)
+);
+
+alert(
+"Added To Cart"
+);
+
+}
+
+// LOGOUT
+
+function logout(){
+
+localStorage.clear();
+
+window.location.href =
+"login.html";
+
+}
+
+</script>
+
+</body>
+</html>

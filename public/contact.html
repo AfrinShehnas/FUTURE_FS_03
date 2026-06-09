@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Contact Us</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="logo">
+📞 Contact Us
+</div>
+
+<div class="nav-links">
+<a href="index.html">Home</a>
+<a href="about.html">About</a>
+<a href="contact.html">Contact</a>
+<a href="cart.html">Cart</a>
+</div>
+
+</div>
+
+<div class="contact-container">
+
+<h1>Get In Touch</h1>
+
+<div class="contact-card">
+
+<h3>📱 Phone</h3>
+<p>+91 7907508592</p>
+
+<h3>📧 Email</h3>
+<p>groceryshop@gmail.com</p>
+
+</div>
+
+<h2>Send Feedback</h2>
+
+<input
+type="text"
+id="name"
+placeholder="Your Name"
+>
+
+<input
+type="text"
+id="phone"
+placeholder="Phone Number"
+>
+
+<textarea
+id="message"
+placeholder="Enter Feedback"
+rows="6"
+></textarea>
+
+<button onclick="sendFeedback()">
+Submit Feedback
+</button>
+
+</div>
+
+<script>
+
+async function sendFeedback(){
+
+let name =
+document.getElementById("name").value;
+
+let phone =
+document.getElementById("phone").value;
+
+let message =
+document.getElementById("message").value;
+
+if(
+!name ||
+!phone ||
+!message
+){
+alert("Fill all fields");
+return;
+}
+
+let res =
+await fetch(
+"/feedback",
+{
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+name,
+phone,
+message
+})
+
+}
+);
+
+alert(
+"Feedback Submitted Successfully"
+);
+
+document.getElementById("name").value="";
+document.getElementById("phone").value="";
+document.getElementById("message").value="";
+
+}
+
+</script>
+
+</body>
+</html>

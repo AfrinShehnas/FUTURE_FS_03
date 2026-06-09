@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cart</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<script>
+
+let user = localStorage.getItem("user");
+
+if(!user){
+  window.location.href="login.html";
+}
+
+</script>
+
+<body onload="loadCart()">
+
+<div class="navbar">
+
+<h2>🛒 Shopping Cart</h2>
+
+<div>
+
+<a href="index.html">
+<button>Back To Shop</button>
+</a>
+
+</div>
+
+</div>
+
+<div class="cart-container">
+
+<h2>Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<h2 id="total">
+Total: ₹0
+</h2>
+
+<button
+class="checkout-btn"
+onclick="checkout()"
+>
+Order Through WhatsApp
+</button>
+
+</div>
+
+<script>
+
+let cart =
+JSON.parse(
+localStorage.getItem("cart")
+) || [];
+
+// LOAD CART
+
+function loadCart(){
+
+renderCart();
+
+}
+
+// RENDER CART
+
+function renderCart(){
+
+let container =
+document.getElementById(
+"cartItems"
+);
+
+container.innerHTML = "";
+
+let total = 0;
+
+if(cart.length === 0){
+
+container.innerHTML =
+"<h3>Cart Is Empty</h3>";
+
+document
+.getElementById("total")
+.innerText =
+"Total: ₹0";
+
+return;
+
+}
+
+cart.forEach(
+(item,index)=>{
+
+let sub =
+item.price *
+item.qty;
+
+total += sub;
+
+container.innerHTML += `
+
+<div class="cart-item">
+
+<h3>
+${item.name}
+</h3>
+
+<p>
+₹${item.price}
+×
+${item.qty}
+=
+₹${sub}
+</p>
+
+<button
+onclick="changeQty(${index},1)"
+>
++
+</button>
+
+<button
+onclick="changeQty(${index},-1)"
+>
+-
+</button>
+
+<button
+onclick="removeItem(${index})"
+>
+Remove
+</button>
+
+</div>
+
+`;
+
+}
+);
+
+document
+.getElementById("total")
+.innerText =
+"Total: ₹" + total;
+
+}
+
+// INCREASE / DECREASE
+
+function changeQty(
+index,
+value
+){
+
+cart[index].qty += value;
+
+if(
+cart[index].qty <= 0
+){
+
+cart.splice(index,1);
+
+}
+
+localStorage.setItem(
+"cart",
+JSON.stringify(cart)
+);
+
+renderCart();
+
+}
+
+// REMOVE
+
+function removeItem(index){
+
+cart.splice(index,1);
+
+localStorage.setItem(
+"cart",
+JSON.stringify(cart)
+);
+
+renderCart();
+
+}
+
+// CHECKOUT
+
+async function checkout(){
+
+if(cart.length === 0){
+
+alert(
+"Cart is Empty"
+);
+
+return;
+
+}
+
+let user =
+JSON.parse(
+localStorage.getItem("user")
+);
+
+let total = 0;
+
+let message =
+"🛒 Grocery Order\n\n";
+
+cart.forEach(item=>{
+
+let sub =
+item.price *
+item.qty;
+
+total += sub;
+
+message +=
+`${item.name} x${item.qty} = ₹${sub}\n`;
+
+});
+
+message +=
+`\nTotal = ₹${total}`;
+
+await fetch(
+"/place-order",
+{
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+customer_name:
+user.name,
+
+phone:
+user.phone,
+
+items:
+cart,
+
+total:
+total
+
+})
+
+}
+);
+
+window.open(
+
+`https://wa.me/917907508592?text=${encodeURIComponent(message)}`
+
+);
+
+cart = [];
+
+localStorage.setItem(
+"cart",
+JSON.stringify(cart)
+);
+
+renderCart();
+
+alert(
+"Order Saved Successfully"
+);
+
+}
+
+</script>
+
+</body>
+</html>
