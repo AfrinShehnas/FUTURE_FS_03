@@ -31,23 +31,23 @@ function renderProducts(products) {
     }
 
     container.innerHTML += `
-      <div class="card">
-        <img src="${p.image}">
-        <h3>${p.name}</h3>
-        <p>₹${p.price}</p>
+  <div class="card">
+    <img src="/${p.image}" alt="${p.name}">
+    <h3>${p.name}</h3>
+    <p>₹${p.price}</p>
 
-        ${stockUI}
+    ${stockUI}
 
-        <input type="number" min="1" value="1" id="qty-${p.id}" ${!isAvailable ? "disabled" : ""}>
+    <input type="number" min="1" value="1" id="qty-${p.id}" ${!isAvailable ? "disabled" : ""}>
 
-        <button 
-          onclick="addToCart(${p.id},'${p.name}',${p.price})"
-          ${!isAvailable ? "disabled" : ""}
-        >
-          ${isAvailable ? "Add to Cart" : "Unavailable"}
-        </button>
-      </div>
-    `;
+    <button
+      onclick="addToCart(${p.id},'${p.name}',${p.price})"
+      ${!isAvailable ? "disabled" : ""}
+    >
+      ${isAvailable ? "Add to Cart" : "Unavailable"}
+    </button>
+  </div>
+`;
   });
 }
 
